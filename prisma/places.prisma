@@ -1,0 +1,112 @@
+// Define MongoDB connection
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL_PLACES")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../prisma/generated/places"
+}
+
+// City Model - Add the places relation
+model City {
+  id         String               @id @default(auto()) @map("_id") @db.ObjectId
+  countryId  String               @db.ObjectId
+  country    Country              @relation("CountryCities", fields: [countryId], references: [id])
+  contentId  String               @db.ObjectId
+  content    TranslatableContent  @relation(fields: [contentId], references: [id])
+  geo        GeoCoordinates
+  image      Image?
+  population Int?
+  timezone   String?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  code3      String?
+  type       String?
+  places     Place[]              // Add this line to create the opposite relation
+}
+
+// Country Model - Add the places relation
+model Country {
+  id         String               @id @default(auto()) @map("_id") @db.ObjectId
+  code       String               @unique
+  code3      String               @unique
+  contentId  String               @db.ObjectId
+  content    TranslatableContent  @relation(fields: [contentId], references: [id])
+  cities     City[]               @relation("CountryCities")
+  geo        GeoCoordinates
+  image      Image?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  type       String?
+  places     Place[]              // Add this line to create the opposite relation
+}
+
+// Place Model - Add relation names to match
+model Place {
+  id           String               @id @default(auto()) @map("_id") @db.ObjectId
+  cityId       String?              @db.ObjectId
+  city         City?                @relation(fields: [cityId], references: [id])
+  countryId    String?              @db.ObjectId
+  country      Country?             @relation(fields: [countryId], references: [id])
+  contentId    String               @db.ObjectId
+  content      TranslatableContent  @relation(fields: [contentId], references: [id])
+  geo          GeoCoordinates
+  image        Image?
+  type         String
+  category     String
+  subcategory  String?
+  tags         String[]
+  rating       Float?
+  address      String?
+  website      String?
+  phone        String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+}
+
+// AlternativeName Embedded Type - ADD THIS NEW TYPE
+type AlternativeName {
+  text      String
+  source    String   // "user_search", "ai_correction", etc.
+  createdAt DateTime @default(now())
+}
+
+// Translatable Content Model - UPDATE THIS MODEL
+model TranslatableContent {
+  id               String               @id @default(auto()) @map("_id") @db.ObjectId
+  entity           String
+  translations     TranslatedText[]
+  alternativeNames AlternativeName[]    // ADD THIS NEW FIELD
+  // Opposite Relations
+  countries        Country[]
+  cities           City[]
+  places           Place[]
+  code3            String?              // Stores the country name
+  type             String?              // Stores "country" or "city"
+}
+
+// Translated Text Model
+model TranslatedText {
+  id        String               @id @default(auto()) @map("_id") @db.ObjectId
+  contentId String               @db.ObjectId
+  content   TranslatableContent  @relation(fields: [contentId], references: [id])
+  code3     String?              // Stores the country name
+  language  String
+  text      String
+  type      String?              // Stores "name" or "description"
+}
+
+// GeoCoordinates Embedded Type
+type GeoCoordinates {
+  lat Float
+  log Float
+}
+
+// Image Embedded Type
+type Image {
+  url         String?
+  public_id   String?   // ID to identify the image in cloud storage
+  uploadFrom  String?   // Source of the image (e.g., "internet", "local")
+}
