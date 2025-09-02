@@ -1,12 +1,9 @@
-import { PrismaClient as PlacesClient } from 'prisma/generated/places'
-import { PrismaClient as UsersPrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client"
 
-// Create instances
-const placesClient = new PlacesClient()
-const prisma = new UsersPrismaClient()
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
 
-// Default export for `prisma`
-export default prisma
+export const prisma = globalForPrisma.prisma ?? new PrismaClient()
 
-// Named export for `placesClient`
-export { placesClient }
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma

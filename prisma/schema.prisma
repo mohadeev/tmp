@@ -1,577 +1,172 @@
-// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "windows", "rhel-openssl-3.0.x"]
-}
-
-
-model Business {
-  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
-  creatorId           String   @db.ObjectId  // Foreign key for User
-  name                String?
-  adminName           String?
-  email               String   @unique
-  phoneNumber         String
-  address             String?
-  country             String?
-  registrationNumber  String?  // Optional registration number
-  bankName            String?
-  accountNumber       String?
-  registrationDate    DateTime?
-
-  // Profile Image
-  profileImage        Json?    // JSON object storing {url, public_id}
-
-  // Cover Image
-  coverImage          Json?    // JSON object storing {url, public_id}
-
-  // Relation to Tours created by the business
-  toursCreated        Tour[]   @relation("BusinessTours")
-
-  // Creator relation to the User model
-  creator             User     @relation("UserBusinesses", fields: [creatorId], references: [id])
-
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  type               String   @default("TRAVEL_AGENCY") //
-  isActive           Boolean  @default(false)  // Added isActive field
-  @@map("businesses")
-}
-
-
-
-
-model Subscription {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId            String    @db.ObjectId // Reference to User
-  subscriptionType  String    // Type of subscription (e.g., monthly, yearly)
-  startDate         DateTime  // Subscription start date
-  endDate           DateTime? // Subscription end date (optional)
-  isActive          Boolean   @default(true) // Is the subscription active
-  createdAt         DateTime  @default(now()) // Creation date
-  updatedAt         DateTime  @updatedAt // Update date
-
-  user              User      @relation("UserSubscriptions", fields: [userId], references: [id]) // Relation to User model
-
-  @@map("subscriptions")
-}
-
-
-model Booking {
-  
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  customer       User     @relation("CustomerBookings", fields: [customerId], references: [id])
-  customerId     String   @db.ObjectId
-  provider       User     @relation("ProviderBookings", fields: [providerId], references: [id])
-  providerId     String   @db.ObjectId
-  tour          Tour     @relation("TourBookings", fields: [tourId], references: [id])
-  tourId        String   @db.ObjectId
-  duration      Int      // Duration of the booking in days
-  services      Json[]   // Array of services booked
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  accommodation Accommodation? 
-  bookOwnHotels Boolean? @default(true)
-  includeInTotal  Boolean?
-  bookingState String 
-  guests Guests?
-  bookingStates BookingStates[]
-  pricePerSeat Int? 
-  serviceCharge Int?
-  subtotal Int?
-  totalPrice Float?
-  lineItems LineItem[]
-  selectedDate   SelectedDate?
-  paymentIntentId String?
-  orderNumber String   @unique 
-  receiptNumber String   @unique 
-  invoiceNumber String @unique
-  bookingReference String @unique 
-  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
-  paymentMethodId String?        @db.ObjectId
-
-  @@map("bookings")
-} 
-
-
-
-enum RoomType {
-  SINGLE
-  TWIN
-  COUPLE
-}
-
-enum AccommodationClass {
-  STANDARD
-  LUXURY
-}
-
-type OccupancyCount {
-  adult Int
-  child Int
-}
-
-type RoomOccupancy {
-  single  OccupancyCount
-  twin    OccupancyCount
-  couple  OccupancyCount
-}
-
-type Accommodation {
-  Standard RoomOccupancy
-  Luxury   RoomOccupancy
-}
-type Guests {
-  guestAdults Int 
-  guestChildren Int
-}
-
-type BookingStates {
-  state     String
-  by        String
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-}
-
-
-type SelectedDate {
-  startDate Int
-  endDate   Int
-}
-
-type LineItem  {
-  description     String
-  unitPrice       Float
-  totalPrice      Float
-  totalGuests     Int
-  serviceQuantity Int
-  includeInTotal  Boolean
-  currency        String
-}
-
-model Place {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  tripadvisorData Json      // Unstructured data, stored as JSON
-  createdAt       DateTime  @default(now())  // Auto set the createdAt field
-  updatedAt       DateTime  @updatedAt       // Auto set the updatedAt field
-  
-  @@map("places")
-}
-
-
-
-
-
 model User {
-  id                     String    @id @default(auto()) @map("_id") @db.ObjectId
-  email                  String    @unique
-  username               String?
-  name                   String?
-  phone                  String?
-  password               String
-  payoutMethods     PayoutMethod[] @relation("UserPayoutMethods")
-  senders                Json?
-  date                   DateTime  @default(now())
-  library                Json?
-  accountData            Json?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-  savedList              Json?
-  passwordResetToken     String?   
-  passwordResetTokens    String[]  
-  passwordHistory        String[]  
-  passwordResetTokenExpiry DateTime? 
-  businesses             Business[] @relation("UserBusinesses")
-  customerBookings   Booking[] @relation("CustomerBookings") // Bookings where the user is the customer
-  providerBookings   Booking[] @relation("ProviderBookings") // Bookings where the user is the provider
-  subscriptions          Subscription[] @relation("UserSubscriptions")
-  toursCreated           Tour[]  @relation("UserTours")
-  address                Address? @relation("UserAddresses", fields: [addressId], references: [id])
-  addressId              String?   // Foreign key to Address
-  profileImage           Json?    
-  paymentMethods   PaymentMethod[] 
-  stripeCustomerId String?
-  emailVerified          Boolean   @default(false)
-  verificationLinkToken  String?   @unique
-  verificationCodeToken  String?   @unique
-  verificationTokenExpiry DateTime?
-  verificationCode       String?
-  verificationCodeExpiry DateTime?
-  posts         Post[]
-  isAdmin   Boolean   @default(false)
-  forumPosts             ForumPost[]
-  forumComments          ForumComment[] @relation("CommentAuthor")
-  likedCommentIds        String[]  @db.ObjectId
-  dislikedCommentIds     String[]  @db.ObjectId
-  likedComments          ForumComment[] @relation("LikedComments", fields: [likedCommentIds], references: [id])
-  dislikedComments       ForumComment[] @relation("DislikedComments", fields: [dislikedCommentIds], references: [id])
-  
-  referredById    String?   @db.ObjectId
-  referredBy      User?     @relation("UserReferrals", fields: [referredById], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  referredUsers   User[]    @relation("UserReferrals") // Must not specify `fields` or `references`
-  referralLinks   ReferralLink[] @relation("UserReferralLinks")
-  active          Boolean   @default(true)
-  deactivatedAt   DateTime?
-  deactivationReason String?
-  @@map("users")
-
-}
-
-
-
-model PaymentMethod {
-  id                     String    @id @default(auto()) @map("_id") @db.ObjectId
-  user                   User      @relation(fields: [userId], references: [id])
-  userId                 String    @db.ObjectId
-  stripePaymentMethodId  String
-  type                   String?
-  last4                  String?
-  brand                  String?
-  exp_month              Int?
-  exp_year               Int?
-  cardHolder             String?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-  bookings               Booking[]
-  billingAddressLine1    String?
-  billingAddressLine2    String?
-  billingCity            String?
-  billingState           String?
-  billingPostalCode      String?
-  billingCountry         String?
-  isDefault Boolean? @default(false)
-  isTemporary Boolean? @default(false)
-  @@map("payment_methods")
-}
-
-type Faq {
-  question String
-  answer   String
-}
-
-model Tour {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  creatorId      String    @db.ObjectId
-  creator        User      @relation("UserTours", fields: [creatorId], references: [id])
-  businessId     String?   @db.ObjectId
-  business       Business? @relation("BusinessTours", fields: [businessId], references: [id])
-  name           String?
-  subtitle       String?
-  overview       String?
-  productCategory String?
-  slug           String?
-  images         Json[]
-  people         Json[]
-  services       Json[]
-  places         Json[]
-  highlights     Json[]
-  days           Day[]    
-  paths          Json[]
-  price          String?
-  discount       String?
-  start          Json?
-  end            Json?
-  reviews        Json[]
-  lang           String?
-  tourfor        String?
-  updated        Boolean   @default(false)
-  conclusion     String?
-  tags           Json[]
-  keyphrase      Json[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  bookings       Booking[] @relation("TourBookings")
-//addressId      String?   @db.ObjectId
-//address        Address?  @relation("TourAddresses", fields: [addressId], references: [id])
-  pricingTiers   PricingTier[]
-  accommodations Accommodations[]
-  startAddressId String?   @db.ObjectId
-  startAddress   Address?  @relation("TourStartAddress", fields: [startAddressId], references: [id])
-  endAddressId   String?   @db.ObjectId
-  endAddress     Address?  @relation("TourEndAddress", fields: [endAddressId], references: [id])
-  faq            Faq[]
-  inclusions     Inclusions?  // ✅ Added inclusions just like FAQ  
-  durationType String?
-  duration Int?
-	includesOvernight Boolean?
-  @@map("tours")
-}
-
-type PricingTier {
-  minSeats    Int?
-  maxSeats    Int?
-  pricing     Pricing?
-  transportType String?
-  transportImage String?
-}
-
-type Inclusions {
-  luxury   LuxuryInclusion
-  standard StandardInclusion
-}
-
-type LuxuryInclusion {
-  private String[]
-  shared  String[]
-}
-
-type StandardInclusion {
-  private String[]
-  shared  String[]
-}
-
-type Pricing {
-  pricePerDay Float?
-  totalPrice  Float?
-  currency    String?
-}
-
-// New types for accommodation
-type Accommodations {
-  name        String
-  description String?
-  pricingTiers AccommodationPricingTier[]
-}
-
-type AccommodationPricingTier {
-  name       String
-  minSeats   Int?
-  maxSeats   Int?
-  bedOptions BedOption[]
-}
-
-type BedOption {
-  bedType      BedType
-  maxOccupancy Int
-  basePrice    Float
-  currency     String
-}
-
-enum BedType {
-  SINGLE
-  TWIN
-  COUPLE
-}
-
-type GeoCoordinates {
-  lat  Float
-  log Float
-}
-
-model Address {
-  id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  streetAddress  String?
-  buildingNumber String?
-  suiteNumber    String?
-  postOfficeBox  String?
-  city           String?
-  state          String?
-  postalCode     String?
-  country        String?
-  landmark       String?
-  subdivision    String?
-  timeZone       String?
-  isPrimary      Boolean?
-  notes          String?
-  geoCoordinates GeoCoordinates
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  //tours          Tour[]         @relation("TourAddresses")
-  toursAsStart   Tour[]         @relation("TourStartAddress")
-  toursAsEnd     Tour[]         @relation("TourEndAddress")
-  users          User[]         @relation("UserAddresses")  // Add this line
-}
-
-model Counter {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  name  String @unique
-  value Int
-}
-
-
-model NewsletterSubscription {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  email      String   @unique
-  subscribed Boolean  @default(true)
-  types      String[] @default([])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  tokens token[]
-  @@map("newsletter")
-}
-
-type token {
-  token      String
-  expired Boolean
-}
- 
-
-model Post {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  content       String
-  excerpt       String
-  featuredImage String?
-  author        User     @relation(fields: [authorId], references: [id])
-  authorId      String   @db.ObjectId
-  createdAt     DateTime @default(now())
-  tags          String[]
-  imageIds      String[] @db.ObjectId
-}
-
-type Image {
-  id       String @db.ObjectId
-  url      String
-  publicId String
-}
-
-
-
-model TravelSpot {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  subtitle    String
-  content     String
-  imageUrl    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-
-
-
-model WhistleblowerReport {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  title            String
-  description      String
-  category         String
-  urgencyLevel     String
-  involvedParties  String?
-  dateOfIncident   DateTime?
-  additionalInfo   String?
-  status           String   @default("pending")
-  submittedAt      DateTime @default(now())
-  lastUpdated      DateTime @updatedAt
-}
-
-model Spin {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  prizeNumber Int
-  timestamp   DateTime
-  winner      Winner?
-}
-
-model Winner {
-  id     String@id @default(auto()) @map("_id") @db.ObjectId
-  spinId  String @unique @db.ObjectId
-  spin    Spin   @relation(fields: [spinId], references: [id])
-  code    String @unique
-}
-
-
-model ForumPost {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  content   String
-  excerpt   String
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String   @db.ObjectId
+  email     String   @unique
+  name      String
+  phone     String?
+  role      UserRole @default(CLIENT)
+  credits   Float    @default(0) // Minutes purchased
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  tags      String[]
-  category  String
-  likes     Int      @default(0)
-  views     Int      @default(0)
-  comments  ForumComment[]
+
+  // Client relationships
+  clientCalls    Call[]        @relation("ClientCalls")
+  clientPayments Payment[]     @relation("ClientPayments")
+  clientReviews  Review[]      @relation("ClientReviews")
+
+  // Advisor relationships
+  advisorCalls     Call[]           @relation("AdvisorCalls")
+  advisorProfile   AdvisorProfile?
+  advisorPayouts   Payout[]         @relation("AdvisorPayouts")
+  receivedReviews  Review[]         @relation("AdvisorReviews")
+  availability     Availability[]
+
+  @@map("users")
 }
 
-model ForumComment {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  content       String
-  author        User     @relation("CommentAuthor", fields: [authorId], references: [id])
-  authorId      String   @db.ObjectId
-  post          ForumPost @relation(fields: [postId], references: [id])
-  postId        String   @db.ObjectId
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  parentId      String?  @db.ObjectId
-  parent        ForumComment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  replies       ForumComment[] @relation("CommentReplies")
-  likedByIds    String[] @db.ObjectId
-  dislikedByIds String[] @db.ObjectId
-  likedBy       User[]   @relation("LikedComments", fields: [likedByIds], references: [id])
-  dislikedBy    User[]   @relation("DislikedComments", fields: [dislikedByIds], references: [id])
+model AdvisorProfile {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String  @unique @db.ObjectId
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String
+  expertise   String[]
+  ratePerMinute Float
+  avatar      String?
+  isActive    Boolean @default(true)
+  rating      Float   @default(0)
+  totalCalls  Int     @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("advisor_profiles")
 }
 
+model Availability {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  advisorId String   @db.ObjectId
+  advisor   User     @relation(fields: [advisorId], references: [id], onDelete: Cascade)
+  
+  dayOfWeek Int      // 0-6 (Sunday-Saturday)
+  startTime String   // "09:00"
+  endTime   String   // "17:00"
+  isActive  Boolean  @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-
-
-
-
-
-
-model ReferralLink {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId           String    @db.ObjectId
-  user             User      @relation("UserReferralLinks", fields: [userId], references: [id], onDelete: Cascade)
-
-  code             String    @unique
-  commissionType   CommissionType 
-  commissionValue  Float   
-  isLifetime       Boolean  @default(false) 
-  maxUses          Int?      // Maximum number of times this referral can be used
-  usedCount        Int      @default(0) // Tracks how many times it has been used
-  startDate        DateTime? 
-  endDate          DateTime? 
-
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime?  @updatedAt
+  @@map("availability")
 }
 
+model Call {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  clientId   String     @db.ObjectId
+  client     User       @relation("ClientCalls", fields: [clientId], references: [id])
+  advisorId  String     @db.ObjectId
+  advisor    User       @relation("AdvisorCalls", fields: [advisorId], references: [id])
+  
+  status     CallStatus @default(PENDING)
+  duration   Int?       // in minutes
+  cost       Float?     // total cost
+  ratePerMinute Float   // rate at time of call
+  
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  endedAt     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-model PayoutMethod {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId            String    @db.ObjectId
-  user              User      @relation("UserPayoutMethods", fields: [userId], references: [id])
-  type              String    // "paypal" or "bank_account"
+  // Call connection details
+  twilioCallSid String?
   
-  // For PayPal
-  email             String?
-  
-  // For Bank Account
-  accountHolderName String?
-  accountNumber     String?
-  bankName          String?
-  swiftCode         String?
-  iban              String?
-  routingNumber     String?
-  
-  country           String
-  currency          String
-  isDefault         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  
-  @@map("payout_methods")
+  @@map("calls")
 }
 
+model Payment {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  clientId  String        @db.ObjectId
+  client    User          @relation("ClientPayments", fields: [clientId], references: [id])
+  
+  amount    Float
+  credits   Float         // minutes purchased
+  status    PaymentStatus @default(PENDING)
+  
+  // Stripe details
+  stripePaymentIntentId String?
+  stripeSessionId       String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-// Add this type definition for Day
-type Day {
-  hidden      Boolean   @default(false)
-  name        String
-  description String?
-  cityId      String?   // Make cityId optional (nullable)
-  cityName    String?   // Make cityName optional (nullable)
-} 
+  @@map("payments")
+}
 
-enum CommissionType {
-  PERCENTAGE // Example: 5% commission
-  FIXED_AMOUNT // Example: 10€ per booking
+model Payout {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  advisorId String      @db.ObjectId
+  advisor   User        @relation("AdvisorPayouts", fields: [advisorId], references: [id])
+  
+  amount    Float
+  status    PayoutStatus @default(PENDING)
+  
+  // Stripe details
+  stripeTransferId String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payouts")
+}
+
+model Review {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  clientId  String @db.ObjectId
+  client    User   @relation("ClientReviews", fields: [clientId], references: [id])
+  advisorId String @db.ObjectId
+  advisor   User   @relation("AdvisorReviews", fields: [advisorId], references: [id])
+  
+  rating    Int    // 1-5
+  comment   String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+enum UserRole {
+  CLIENT
+  ADVISOR
+  ADMIN
+}
+
+enum CallStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PayoutStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }
