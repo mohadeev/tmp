@@ -39,3 +39,16 @@ next-env.d.ts
 
 .vercel
 .env
+
+
+
+# Node.js ignores
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+build/
+
+# Environment files
+.env
+.env.*
