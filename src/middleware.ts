@@ -131,8 +131,12 @@ import type { NextRequest } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
 
+import { auth0 } from './lib/auth0'
+
 // import { generateTourLink } from './useTourLink'
 export default async function middleware(request: NextRequest) {
+	return await auth0.middleware(request)
+
 	// const url = request.nextUrl.clone()
 	// const pathname = url.pathname
 	// const locale: string = url.pathname.split('/')[1] || 'en-US'
