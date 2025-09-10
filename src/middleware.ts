@@ -166,22 +166,6 @@ export const withAuth0: MiddlewareFactory = (next) => {
 	}
 }
 
-export const withUser: MiddlewareFactory = (next) => {
-	return async (request: NextRequest, _next: NextFetchEvent) => {
-		const pathname = request.nextUrl.pathname
-
-		if (['/profile'].some((path) => pathname.startsWith(path))) {
-			const userId = request.cookies.get('userId')
-			if (!userId) {
-				const url = new URL(`/auth/login`, request.url)
-				return NextResponse.redirect(url)
-			}
-		}
-
-		return next(request, _next)
-	}
-}
-
 export const withI18n: MiddlewareFactory = (next) => {
 	return async (request: NextRequest, _next: NextFetchEvent) => {
 		const handleI18nRouting = createMiddleware(routing)
@@ -189,7 +173,7 @@ export const withI18n: MiddlewareFactory = (next) => {
 	}
 }
 
-const middlewares = [withAuth0, withUser, withI18n]
+const middlewares = [withAuth0, withI18n]
 export default stackMiddlewares(middlewares)
 
 export const config = {
