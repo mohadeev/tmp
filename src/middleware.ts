@@ -125,21 +125,30 @@
 // export const config = {
 //   matcher: "/((?!api|static|.*\\..*|_next).*)",
 // };
-
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
 import { auth0 } from './lib/auth0'
 
+// Intl middleware instance
+const intlMiddleware = createMiddleware(routing)
+
 export default async function middleware(request: NextRequest) {
-	const url = request.nextUrl.clone()
-	const pathname = url.pathname
-	const locale: string = url.pathname.split('/')[1] || 'en-US'
-	if (pathname.includes('/auth')) {
-		return await auth0.middleware(request)
+	const pathname = request.nextUrl.pathname
+
+	try {
+		if (pathname.startsWith('/auth')) {
+			// Auth0 middleware handles the auth routes
+			return await auth0.middleware(request)
+		}
+
+		// Intl middleware handles all other routes
+		return await intlMiddleware(request)
+	} catch (err) {
+		console.error('Middleware error:', err)
+		return NextResponse.error()
 	}
-	return createMiddleware(routing)(request)
 }
 
 export const config = {
