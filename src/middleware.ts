@@ -125,15 +125,24 @@
 // export const config = {
 //   matcher: "/((?!api|static|.*\\..*|_next).*)",
 // };
-
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
+import { auth0 } from './lib/auth0' // adjust the path to your auth0 instance
 
-export default createMiddleware(routing)
+export default async function middleware(request: NextRequest) {
+	// First, run the Auth0 middleware
+	const authResponse = await auth0.middleware(request)
+	if (authResponse) {
+		// If Auth0 middleware returns a response (like redirect to login), return it immediately
+		return authResponse
+	}
+
+	// Then, run the i18n middleware
+	return createMiddleware(routing)(request)
+}
 
 export const config = {
-	// Match all pathnames except for
-	// - … if they start with `/api`, `/trpc`, `/_next` or `/_vercel`
-	// - … the ones containing a dot (e.g. `favicon.ico`)
 	matcher: '/((?!api|trpc|_next|_vercel|.*\\..*).*)',
 }

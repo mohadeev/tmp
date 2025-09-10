@@ -88,6 +88,12 @@ const nextConfig = {
 				port: '',
 				pathname: '/**',
 			},
+			{
+				protocol: 'https',
+				hostname: 's.gravatar.com',
+				port: '',
+				pathname: '/**',
+			},
 		],
 	},
 	typescript: {

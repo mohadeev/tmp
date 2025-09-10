@@ -58,7 +58,9 @@ const config: Config = {
         bodydark1: "#DEE4EE",
         bodydark2: "#8A99AF",
         primary: "#3C50E0",
-
+popover: {
+      DEFAULT: "#ffffff", // linked to CSS var
+    },
         primary: {
           50: customColors("--c-primary-50"),
           100: customColors("--c-primary-100"),
