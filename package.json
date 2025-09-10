@@ -160,6 +160,7 @@
     "tailwind-merge": "^2.5.5",
     "ts-node": "^10.9.2",
     "twilio": "^5.8.2",
+    "twilio-client": "^1.15.1",
     "typescript": "^5.2.2",
     "uuid": "^11.0.3",
     "zod": "^3.24.2"

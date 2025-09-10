@@ -14,10 +14,13 @@ export async function GET() {
 		process.env.TWILIO_ACCOUNT_SID!,
 		process.env.TWILIO_API_KEY!,
 		process.env.TWILIO_API_SECRET!,
+		{
+			identity: 'client_user', // required
+			ttl: 3600, // optional, default 1 hour
+		},
 	)
 
 	token.addGrant(voiceGrant)
-	token.identity = 'client_user'
 
 	return NextResponse.json({ token: token.toJwt() })
 }
