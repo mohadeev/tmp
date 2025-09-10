@@ -38,7 +38,7 @@ export function LoginForm() {
 
         // Redirect based on user role
         if (data.user.role === "ADVISOR") {
-          window.location.href = "/advisor/dashboard"
+          window.location.href = "/dashboard"
         } else if (data.user.role === "ADMIN") {
           window.location.href = "/admin/dashboard"
         } else {

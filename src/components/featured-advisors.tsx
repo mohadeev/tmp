@@ -75,50 +75,41 @@ export function FeaturedAdvisors() {
 										<p className="text-muted-foreground mb-2 text-sm">
 											{advisor.title}
 										</p>
-
-										<div className="mb-3 flex items-center gap-2">
-											<div className="flex items-center gap-1">
-												<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-												<span className="text-sm font-medium">
-													{advisor.rating}
-												</span>
-											</div>
-											<span className="text-muted-foreground text-sm">
-												({advisor.reviews} reviews)
-											</span>
-										</div>
-
-										<div className="mb-4 flex flex-wrap gap-1">
-											{advisor.expertise.slice(0, 2).map((skill) => (
-												<Badge
-													key={skill}
-													variant="secondary"
-													className="text-xs"
-												>
-													{skill}
-												</Badge>
-											))}
-											{advisor.expertise.length > 2 && (
-												<Badge variant="outline" className="text-xs">
-													+{advisor.expertise.length - 2} more
-												</Badge>
-											)}
-										</div>
-
-										<div className="flex items-center justify-between">
-											<div className="text-sm">
-												<span className="font-semibold">
-													${advisor.rate}/min
-												</span>
-											</div>
-											<Button size="sm" disabled={!advisor.isOnline} asChild>
-												<Link href={`/advisor/${advisor.id}`}>
-													<Phone className="mr-2 h-4 w-4" />
-													{advisor.isOnline ? 'Call Now' : 'Offline'}
-												</Link>
-											</Button>
-										</div>
 									</div>
+								</div>
+								<div className="mb-3 flex items-center gap-2">
+									<div className="flex items-center gap-1">
+										<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+										<span className="text-sm font-medium">
+											{advisor.rating}
+										</span>
+									</div>
+									<span className="text-muted-foreground text-sm">
+										({advisor.reviews} reviews)
+									</span>
+								</div>
+								<div className="mb-4 flex flex-wrap gap-1">
+									{advisor.expertise.slice(0, 2).map((skill) => (
+										<Badge key={skill} variant="secondary" className="text-xs">
+											{skill}
+										</Badge>
+									))}
+									{advisor.expertise.length > 2 && (
+										<Badge variant="outline" className="text-xs">
+											+{advisor.expertise.length - 2} more
+										</Badge>
+									)}
+								</div>
+								<div className="flex items-center justify-between">
+									<div className="text-sm">
+										<span className="font-semibold">${advisor.rate}/min</span>
+									</div>
+									<Button size="sm" disabled={!advisor.isOnline} asChild>
+										<Link href={`/advisor/${advisor.id}`}>
+											<Phone className="mr-2 h-4 w-4" />
+											{advisor.isOnline ? 'Call Now' : 'Offline'}
+										</Link>
+									</Button>
 								</div>
 							</CardContent>
 						</Card>

@@ -57,7 +57,7 @@ export function Header() {
 					) : (
 						<>
 							<Button variant="ghost" size="sm" asChild>
-								<Link href="/api/auth/login">
+								<Link href="/auth/login">
 									<User className="mr-2 h-4 w-4" />
 									Sign In
 								</Link>

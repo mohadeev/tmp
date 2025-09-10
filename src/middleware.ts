@@ -125,24 +125,79 @@
 // export const config = {
 //   matcher: "/((?!api|static|.*\\..*|_next).*)",
 // };
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+
+import {
+	type NextFetchEvent,
+	type NextRequest,
+	NextResponse,
+	type NextMiddleware,
+} from 'next/server'
 import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
-import { auth0 } from './lib/auth0' // adjust the path to your auth0 instance
+import { auth0 } from './lib/auth0'
 
-export default async function middleware(request: NextRequest) {
-	// First, run the Auth0 middleware
-	const authResponse = await auth0.middleware(request)
-	if (authResponse) {
-		// If Auth0 middleware returns a response (like redirect to login), return it immediately
-		return authResponse
+export type MiddlewareFactory = (middleware: NextMiddleware) => NextMiddleware
+
+export function stackMiddlewares(
+	functions: MiddlewareFactory[] = [],
+	index = 0,
+): NextMiddleware {
+	const current = functions[index]
+	if (current) {
+		const next = stackMiddlewares(functions, index + 1)
+		return current(next)
 	}
-
-	// Then, run the i18n middleware
-	return createMiddleware(routing)(request)
+	return () => NextResponse.next()
 }
 
+export const withAuth0: MiddlewareFactory = (next) => {
+	return async (request: NextRequest, _next: NextFetchEvent) => {
+		const pathname = request.nextUrl.pathname
+
+		// Check if route needs Auth0 protection
+		if (pathname.startsWith('/auth')) {
+			const authResponse = await auth0.middleware(request)
+			if (authResponse) {
+				return authResponse
+			}
+		}
+
+		return next(request, _next)
+	}
+}
+
+export const withUser: MiddlewareFactory = (next) => {
+	return async (request: NextRequest, _next: NextFetchEvent) => {
+		const pathname = request.nextUrl.pathname
+
+		if (['/profile'].some((path) => pathname.startsWith(path))) {
+			const userId = request.cookies.get('userId')
+			if (!userId) {
+				const url = new URL(`/auth/login`, request.url)
+				return NextResponse.redirect(url)
+			}
+		}
+
+		return next(request, _next)
+	}
+}
+
+export const withI18n: MiddlewareFactory = (next) => {
+	return async (request: NextRequest, _next: NextFetchEvent) => {
+		const handleI18nRouting = createMiddleware(routing)
+		return handleI18nRouting(request)
+	}
+}
+
+const middlewares = [withAuth0, withUser, withI18n]
+export default stackMiddlewares(middlewares)
+
 export const config = {
-	matcher: '/((?!api|trpc|_next|_vercel|.*\\..*).*)',
+	matcher: [
+		// Match all pathnames except for
+		// - API routes that don't need i18n
+		// - files with extensions (e.g. favicon.ico)
+		// - _next static files
+		'/((?!api/(?!auth)|_next/static|_next/image|favicon.ico|.*\\..*|_vercel).*)',
+	],
 }
