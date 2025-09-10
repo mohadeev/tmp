@@ -130,22 +130,17 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
+import { auth0 } from './lib/auth0' // adjust the path to your auth0 instance
 
-import { auth0 } from './lib/auth0'
-
-// import { generateTourLink } from './useTourLink'
 export default async function middleware(request: NextRequest) {
-	return await auth0.middleware(request)
+	// First, run the Auth0 middleware
+	const authResponse = await auth0.middleware(request)
+	if (authResponse) {
+		// If Auth0 middleware returns a response (like redirect to login), return it immediately
+		return authResponse
+	}
 
-	// const url = request.nextUrl.clone()
-	// const pathname = url.pathname
-	// const locale: string = url.pathname.split('/')[1] || 'en-US'
-	// const parts = pathname.split('/')
-	// const last = parts[parts.length - 1]
-	// const serviceId =
-	// 	parts.length === 11 ? parts[parts.length - 2] : parts[parts.length - 1]
-
-	// Continue with i18n middleware
+	// Then, run the i18n middleware
 	return createMiddleware(routing)(request)
 }
 
