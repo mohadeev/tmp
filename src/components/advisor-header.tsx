@@ -9,7 +9,7 @@ export function AdvisorHeader() {
 			<div className="container flex h-16 items-center justify-between">
 				<Link href="/" className="flex items-center gap-2">
 					<Phone className="h-6 w-6 text-primary" />
-					<span className="text-xl font-bold">ConsultPro</span>
+					<span className="text-xl font-bold">TMP</span>
 					<Badge variant="secondary" className="ml-2">
 						Advisor
 					</Badge>
