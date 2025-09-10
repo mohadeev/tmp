@@ -125,30 +125,24 @@
 // export const config = {
 //   matcher: "/((?!api|static|.*\\..*|_next).*)",
 // };
+
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
-import { auth0 } from './lib/auth0'
 
-// Intl middleware instance
-const intlMiddleware = createMiddleware(routing)
-
+// import { generateTourLink } from './useTourLink'
 export default async function middleware(request: NextRequest) {
-	const pathname = request.nextUrl.pathname
+	// const url = request.nextUrl.clone()
+	// const pathname = url.pathname
+	// const locale: string = url.pathname.split('/')[1] || 'en-US'
+	// const parts = pathname.split('/')
+	// const last = parts[parts.length - 1]
+	// const serviceId =
+	// 	parts.length === 11 ? parts[parts.length - 2] : parts[parts.length - 1]
 
-	try {
-		if (pathname.startsWith('/auth')) {
-			// Auth0 middleware handles the auth routes
-			return await auth0.middleware(request)
-		}
-
-		// Intl middleware handles all other routes
-		return await intlMiddleware(request)
-	} catch (err) {
-		console.error('Middleware error:', err)
-		return NextResponse.error()
-	}
+	// Continue with i18n middleware
+	return createMiddleware(routing)(request)
 }
 
 export const config = {
