@@ -5,9 +5,19 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Phone, User } from 'lucide-react'
 import { useUser } from '@auth0/nextjs-auth0'
-
+import {
+	ClerkProvider,
+	SignInButton,
+	SignUpButton,
+	SignedIn,
+	SignedOut,
+	UserButton,
+	useClerk,
+} from '@clerk/nextjs'
 export function Header() {
 	const { user, error, isLoading } = useUser()
+
+	const { openSignIn, openSignUp } = useClerk()
 
 	return (
 		<header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
@@ -39,34 +49,25 @@ export function Header() {
 				</nav>
 
 				<div className="flex items-center gap-3">
-					{isLoading ? (
-						<div>Loading...</div>
-					) : user ? (
-						<Button variant="ghost" size="sm">
-							<Image
-								src={
-									user.picture ||
-									'https://res.cloudinary.com/mohadeev/image/upload/v1757500113/20171206_01_c7jyk3.jpg'
-								}
-								alt={user.name || 'User'}
-								width={32}
-								height={32}
-								className="rounded-full"
-							/>
+					<SignedOut>
+						<Button
+							onClick={() => openSignIn()}
+							variant="ghost"
+							size="sm"
+							asChild
+						>
+							<Link href="#">
+								<User className="mr-2 h-4 w-4" />
+								Sign In
+							</Link>
 						</Button>
-					) : (
-						<>
-							<Button variant="ghost" size="sm" asChild>
-								<Link href="/auth/login">
-									<User className="mr-2 h-4 w-4" />
-									Sign In
-								</Link>
-							</Button>
-							<Button size="sm" asChild>
-								<Link href="/register">Get Started</Link>
-							</Button>
-						</>
-					)}
+						<Button onClick={() => openSignUp()} size="sm" asChild>
+							<Link href="#">Get Started</Link>
+						</Button>
+					</SignedOut>
+					<SignedIn>
+						<UserButton />
+					</SignedIn>
 				</div>
 			</div>
 		</header>
