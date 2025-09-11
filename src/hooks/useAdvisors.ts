@@ -16,6 +16,7 @@ interface Advisor {
 
 // ✅ Make sure this is a named export
 export function useAdvisors(limit = 10) {
+	console.log('limit:', limit)
 	const [advisors, setAdvisors] = useState<Advisor[]>([])
 	const [loading, setLoading] = useState(true)
 
@@ -26,6 +27,7 @@ export function useAdvisors(limit = 10) {
 				const data = await res.json()
 				setAdvisors(data)
 			} catch (error) {
+				console.log('err')
 				console.error('Failed to fetch advisors', error)
 			} finally {
 				setLoading(false)

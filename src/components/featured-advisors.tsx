@@ -45,6 +45,7 @@ const DEFAULT_AVATAR =
 
 export function FeaturedAdvisors() {
 	const { advisors } = useAdvisors(10)
+	console.log('advisors:', advisors)
 	const { startCall, PhoneModalUI } = useCallFlow()
 
 	return (
