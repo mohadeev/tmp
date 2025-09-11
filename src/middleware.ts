@@ -134,14 +134,15 @@ import { auth0 } from './lib/auth0' // adjust the path to your auth0 instance
 
 export default async function middleware(request: NextRequest) {
 	// First, run the Auth0 middleware
-	// const authResponse = await auth0.middleware(request)
+	const authResponse = await auth0.middleware(request)
+	return authResponse
 	// if (authResponse) {
 	// 	// If Auth0 middleware returns a response (like redirect to login), return it immediately
 	// 	return authResponse
 	// }
 
 	// Then, run the i18n middleware
-	return createMiddleware(routing)(request)
+	// return createMiddleware(routing)(request)
 }
 
 export const config = {
