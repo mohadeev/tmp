@@ -126,25 +126,44 @@
 //   matcher: "/((?!api|static|.*\\..*|_next).*)",
 // };
 
-import { NextResponse } from 'next/server'
+// import { NextResponse } from 'next/server'
+// import type { NextRequest } from 'next/server'
+// import createMiddleware from 'next-intl/middleware'
+// import { routing } from './i18n/routing'
+// import { auth0 } from './lib/auth0' // adjust the path to your auth0 instance
+
+// export default async function middleware(request: NextRequest) {
+// 	// First, run the Auth0 middleware
+// 	const authResponse = await auth0.middleware(request)
+// 	return authResponse
+// 	// if (authResponse) {
+// 	// 	// If Auth0 middleware returns a response (like redirect to login), return it immediately
+// 	// 	return authResponse
+// 	// }
+
+// 	// Then, run the i18n middleware
+// 	// return createMiddleware(routing)(request)
+// }
+
+// export const config = {
+// 	matcher: '/((?!api|trpc|_next|_vercel|.*\\..*).*)',
+// }
+
 import type { NextRequest } from 'next/server'
-import createMiddleware from 'next-intl/middleware'
-import { routing } from './i18n/routing'
-import { auth0 } from './lib/auth0' // adjust the path to your auth0 instance
+import { auth0 } from './lib/auth0'
 
-export default async function middleware(request: NextRequest) {
-	// First, run the Auth0 middleware
-	const authResponse = await auth0.middleware(request)
-	return authResponse
-	// if (authResponse) {
-	// 	// If Auth0 middleware returns a response (like redirect to login), return it immediately
-	// 	return authResponse
-	// }
-
-	// Then, run the i18n middleware
-	// return createMiddleware(routing)(request)
+export async function middleware(request: NextRequest) {
+	return await auth0.middleware(request)
 }
 
 export const config = {
-	matcher: '/((?!api|trpc|_next|_vercel|.*\\..*).*)',
+	matcher: [
+		/*
+		 * Match all request paths except for the ones starting with:
+		 * - _next/static (static files)
+		 * - _next/image (image optimization files)
+		 * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+		 */
+		'/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+	],
 }
