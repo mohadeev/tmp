@@ -10,39 +10,6 @@ import { useCallFlow } from '@/hooks/useCallFlow'
 const DEFAULT_AVATAR =
 	'https://res.cloudinary.com/mohadeev/image/upload/v1757500113/20171206_01_c7jyk3.jpg'
 
-// const advisors = [
-// 	{
-// 		id: 1,
-// 		name: 'Dr. Sarah Johnson',
-// 		title: 'Business Strategy Consultant',
-// 		rating: 4.9,
-// 		reviews: 127,
-// 		rate: 3.5,
-// 		expertise: ['Business Strategy', 'Marketing', 'Leadership'],
-// 		isOnline: true,
-// 	},
-// 	{
-// 		id: 2,
-// 		name: 'Michael Chen',
-// 		title: 'Financial Advisor',
-// 		rating: 4.8,
-// 		reviews: 89,
-// 		rate: 4.0,
-// 		expertise: ['Investment', 'Retirement Planning', 'Tax Strategy'],
-// 		isOnline: true,
-// 	},
-// 	{
-// 		id: 3,
-// 		name: 'Lisa Rodriguez kjsdjkv',
-// 		title: 'Career Coach',
-// 		rating: 4.9,
-// 		reviews: 156,
-// 		rate: 2.75,
-// 		expertise: ['Career Development', 'Interview Prep', 'Resume Review'],
-// 		isOnline: false,
-// 	},
-// ]
-
 export function FeaturedAdvisors() {
 	const { advisors } = useAdvisors(10)
 	console.log('advisors:', advisors)
