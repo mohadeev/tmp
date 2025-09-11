@@ -3,20 +3,19 @@
 import { useEffect, useState } from 'react'
 import { Device } from '@twilio/voice-sdk'
 
-export default function TwilioCall() {
+export default function TwilioHello() {
 	const [device, setDevice] = useState<Device | null>(null)
 	const [status, setStatus] = useState('Initializing...')
 
 	useEffect(() => {
 		async function initTwilio() {
 			try {
-				// Fetch Twilio token from your API route
+				// Fetch Twilio token from your API
 				const res = await fetch('/api/twilio/token')
 				const { token } = await res.json()
 
 				const twilioDevice = new Device(token, { logLevel: 1 })
 
-				// Event listeners
 				twilioDevice.on('ready', () => setStatus('Device ready'))
 				twilioDevice.on('error', (err) => setStatus(`Error: ${err.message}`))
 				twilioDevice.on('connect', () => setStatus('Call connected'))
@@ -32,11 +31,12 @@ export default function TwilioCall() {
 		initTwilio()
 	}, [])
 
-	const makeCall = () => {
+	const playMessage = () => {
 		if (!device) return
-		// "To" can be a client identity or a placeholder; TwiML App will forward
-		device.connect({ params: { To: 'browser' } })
-		setStatus('Calling...')
+
+		// Connect to TwiML App
+		device.connect({ params: { To: 'browser' } }) // placeholder, TwiML App handles the message
+		setStatus('Playing message...')
 	}
 
 	const hangUp = () => {
@@ -47,14 +47,14 @@ export default function TwilioCall() {
 
 	return (
 		<div className="flex flex-col items-center gap-4 p-6">
-			<h1 className="text-xl font-bold">Twilio Voice Call</h1>
+			<h1 className="text-xl font-bold">Twilio Hello Test</h1>
 			<p className="text-gray-700">Status: {status}</p>
 			<div className="flex gap-4">
 				<button
-					onClick={makeCall}
+					onClick={playMessage}
 					className="rounded-lg bg-green-600 px-4 py-2 text-white shadow hover:bg-green-700"
 				>
-					Call
+					Play Message
 				</button>
 				<button
 					onClick={hangUp}
