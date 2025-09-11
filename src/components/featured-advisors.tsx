@@ -1,45 +1,52 @@
+'use client'
+
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Star, Phone } from 'lucide-react'
 import Link from 'next/link'
+import { useAdvisors } from '@/hooks/useAdvisors'
+import { useCallFlow } from '@/hooks/useCallFlow'
 const DEFAULT_AVATAR =
 	'https://res.cloudinary.com/mohadeev/image/upload/v1757500113/20171206_01_c7jyk3.jpg'
 
-const advisors = [
-	{
-		id: 1,
-		name: 'Dr. Sarah Johnson',
-		title: 'Business Strategy Consultant',
-		rating: 4.9,
-		reviews: 127,
-		rate: 3.5,
-		expertise: ['Business Strategy', 'Marketing', 'Leadership'],
-		isOnline: true,
-	},
-	{
-		id: 2,
-		name: 'Michael Chen',
-		title: 'Financial Advisor',
-		rating: 4.8,
-		reviews: 89,
-		rate: 4.0,
-		expertise: ['Investment', 'Retirement Planning', 'Tax Strategy'],
-		isOnline: true,
-	},
-	{
-		id: 3,
-		name: 'Lisa Rodriguez kjsdjkv',
-		title: 'Career Coach',
-		rating: 4.9,
-		reviews: 156,
-		rate: 2.75,
-		expertise: ['Career Development', 'Interview Prep', 'Resume Review'],
-		isOnline: false,
-	},
-]
+// const advisors = [
+// 	{
+// 		id: 1,
+// 		name: 'Dr. Sarah Johnson',
+// 		title: 'Business Strategy Consultant',
+// 		rating: 4.9,
+// 		reviews: 127,
+// 		rate: 3.5,
+// 		expertise: ['Business Strategy', 'Marketing', 'Leadership'],
+// 		isOnline: true,
+// 	},
+// 	{
+// 		id: 2,
+// 		name: 'Michael Chen',
+// 		title: 'Financial Advisor',
+// 		rating: 4.8,
+// 		reviews: 89,
+// 		rate: 4.0,
+// 		expertise: ['Investment', 'Retirement Planning', 'Tax Strategy'],
+// 		isOnline: true,
+// 	},
+// 	{
+// 		id: 3,
+// 		name: 'Lisa Rodriguez kjsdjkv',
+// 		title: 'Career Coach',
+// 		rating: 4.9,
+// 		reviews: 156,
+// 		rate: 2.75,
+// 		expertise: ['Career Development', 'Interview Prep', 'Resume Review'],
+// 		isOnline: false,
+// 	},
+// ]
 
 export function FeaturedAdvisors() {
+	const { advisors } = useAdvisors(10)
+	const { startCall, PhoneModalUI } = useCallFlow()
+
 	return (
 		<section id="advisors" className="bg-muted/30 px-4 py-20">
 			<div className="container mx-auto max-w-6xl">
@@ -104,11 +111,22 @@ export function FeaturedAdvisors() {
 									<div className="text-sm">
 										<span className="font-semibold">${advisor.rate}/min</span>
 									</div>
-									<Button size="sm" disabled={!advisor.isOnline} asChild>
-										<Link href={`/advisor/${advisor.id}`}>
+									<Button
+										onClick={() =>
+											startCall({
+												advisorId: advisor.id,
+												advisorName: advisor.name,
+												isAvailable: true,
+											})
+										}
+										size="sm"
+										// disabled={!advisor.isOnline}
+										asChild
+									>
+										<span>
 											<Phone className="mr-2 h-4 w-4" />
 											{advisor.isOnline ? 'Call Now' : 'Offline'}
-										</Link>
+										</span>
 									</Button>
 								</div>
 							</CardContent>
@@ -122,6 +140,7 @@ export function FeaturedAdvisors() {
 					</Button>
 				</div>
 			</div>
+			{PhoneModalUI}
 		</section>
 	)
 }
