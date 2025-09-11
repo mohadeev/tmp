@@ -166,7 +166,11 @@ export default clerkMiddleware(async (auth, req) => {
 		await auth.protect()
 	}
 
-	// Apply internationalization middleware
+	if (req.nextUrl.pathname.startsWith('/api')) {
+		return
+	}
+
+	// Apply internationalization middleware only to non-API routes
 	return intlMiddleware(req)
 })
 

@@ -61,6 +61,7 @@
     "@tiptap/extension-text-align": "^2.10.3",
     "@tiptap/react": "^2.10.3",
     "@tiptap/starter-kit": "^2.10.3",
+    "@twilio/voice-sdk": "^2.15.0",
     "@types/node": "^20.9.2",
     "@types/react": "18.2.37",
     "@types/react-datepicker": "^4.19.3",

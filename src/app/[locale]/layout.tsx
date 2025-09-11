@@ -30,7 +30,7 @@ export default function RootLayout({
 		<ClerkProvider>
 			<html lang="en">
 				<head>
-					<Script
+					{/* <Script
 						src="https://web.cmp.usercentrics.eu/modules/autoblocker.js"
 						strategy="beforeInteractive"
 					/>
@@ -40,7 +40,7 @@ export default function RootLayout({
 						data-settings-id="gVI-vFm7-FZEgj"
 						async
 						strategy="afterInteractive"
-					/>
+					/> */}
 				</head>
 				<body
 					className={`${geistSans.variable} ${geistMono.variable} antialiased`}
