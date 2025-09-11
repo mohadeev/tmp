@@ -8,9 +8,20 @@ export default function TwilioHello() {
 	const [status, setStatus] = useState('Initializing...')
 
 	useEffect(() => {
+		async function requestMic() {
+			try {
+				await navigator.mediaDevices.getUserMedia({ audio: true })
+				console.log('Microphone permission granted')
+			} catch (err) {
+				console.error('Microphone access denied:', err)
+				alert('Please allow microphone access to make calls.')
+			}
+		}
+
+		requestMic()
+
 		async function initTwilio() {
 			try {
-				// Fetch Twilio token from your API
 				const res = await fetch('/api/twilio/token')
 				const { token } = await res.json()
 
@@ -33,9 +44,7 @@ export default function TwilioHello() {
 
 	const playMessage = () => {
 		if (!device) return
-
-		// Connect to TwiML App
-		device.connect({ params: { To: 'browser' } }) // placeholder, TwiML App handles the message
+		device.connect({ params: { To: 'browser' } }) // TwiML webhook handles the message
 		setStatus('Playing message...')
 	}
 

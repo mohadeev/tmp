@@ -6,24 +6,20 @@ export async function GET() {
 		const accountSid = process.env.TWILIO_ACCOUNT_SID!
 		const apiKey = process.env.TWILIO_API_KEY!
 		const apiSecret = process.env.TWILIO_API_SECRET!
-		const twimlAppSid = process.env.TWIML_APP_SID!
+		const identity = 'browser-user'
 
-		if (!accountSid || !apiKey || !apiSecret || !twimlAppSid) {
+		if (!accountSid || !apiKey || !apiSecret) {
 			throw new Error('Missing Twilio environment variables')
 		}
-
-		const identity = 'user123' // change per logged-in user if needed
 
 		const AccessToken = twilio.jwt.AccessToken
 		const VoiceGrant = AccessToken.VoiceGrant
 
 		const token = new AccessToken(accountSid, apiKey, apiSecret, { identity })
-
 		const voiceGrant = new VoiceGrant({
-			outgoingApplicationSid: twimlAppSid,
+			outgoingApplicationSid: process.env.TWIML_APP_SID,
 			incomingAllow: true,
 		})
-
 		token.addGrant(voiceGrant)
 
 		return NextResponse.json({ token: token.toJwt() })
