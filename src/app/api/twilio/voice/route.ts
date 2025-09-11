@@ -2,14 +2,17 @@ import { NextResponse } from 'next/server'
 import twilio from 'twilio'
 
 export async function POST(req: Request) {
-	// Create TwiML response
 	const twiml = new twilio.twiml.VoiceResponse()
 
-	// Say text properly
+	// Step 1: Say the message
 	twiml.say(
 		{ voice: 'alice', language: 'en-US' },
-		'Hello from TMP, thank you for calling.',
+		"Hello from TMP, thank you for calling. I'm transferring the call to Massin, please hold.",
 	)
+
+	// Step 2: Dial your personal number
+	const dial = twiml.dial({ callerId: process.env.TWILIO_PHONE_NUMBER })
+	dial.number('+34614520461') // your personal number
 
 	return new NextResponse(twiml.toString(), {
 		headers: { 'Content-Type': 'text/xml' },
