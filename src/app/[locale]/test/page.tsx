@@ -10,12 +10,13 @@ export default function TwilioCall() {
 	useEffect(() => {
 		async function initTwilio() {
 			try {
-				// ✅ Fetch a token from your Next.js API route
+				// Fetch Twilio token from your API route
 				const res = await fetch('/api/twilio/token')
 				const { token } = await res.json()
 
 				const twilioDevice = new Device(token, { logLevel: 1 })
 
+				// Event listeners
 				twilioDevice.on('ready', () => setStatus('Device ready'))
 				twilioDevice.on('error', (err) => setStatus(`Error: ${err.message}`))
 				twilioDevice.on('connect', () => setStatus('Call connected'))
@@ -23,7 +24,7 @@ export default function TwilioCall() {
 
 				setDevice(twilioDevice)
 			} catch (err) {
-				console.error('Failed to initialize Twilio Device:', err)
+				console.error('Twilio initialization failed:', err)
 				setStatus('Initialization failed')
 			}
 		}
@@ -33,7 +34,8 @@ export default function TwilioCall() {
 
 	const makeCall = () => {
 		if (!device) return
-		device.connect({ params: { To: '+12085956901' } }) // replace with real number/client
+		// "To" can be a client identity or a placeholder; TwiML App will forward
+		device.connect({ params: { To: 'browser' } })
 		setStatus('Calling...')
 	}
 
@@ -45,7 +47,7 @@ export default function TwilioCall() {
 
 	return (
 		<div className="flex flex-col items-center gap-4 p-6">
-			<h1 className="text-xl font-bold">Twilio Voice Example</h1>
+			<h1 className="text-xl font-bold">Twilio Voice Call</h1>
 			<p className="text-gray-700">Status: {status}</p>
 			<div className="flex gap-4">
 				<button
