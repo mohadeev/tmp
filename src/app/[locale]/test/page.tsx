@@ -33,6 +33,7 @@ export default function Home() {
 
 	return (
 		<div style={{ padding: 50 }}>
+			<h1>Call Advisor</h1>
 			<button onClick={callAdvisor} style={{ marginRight: 10 }}>
 				Call Advisor
 			</button>

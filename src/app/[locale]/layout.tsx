@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import { Auth0Provider } from '@auth0/nextjs-auth0'
+import Script from 'next/script'
+import { ClerkProvider } from '@clerk/nextjs'
 
 const geistSans = localFont({
 	src: '../fonts/GeistVF.woff',
@@ -25,12 +27,27 @@ export default function RootLayout({
 	children: React.ReactNode
 }>) {
 	return (
-		<html lang="en">
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-			>
-				<Auth0Provider>{children}</Auth0Provider>
-			</body>
-		</html>
+		<ClerkProvider>
+			<html lang="en">
+				<head>
+					<Script
+						src="https://web.cmp.usercentrics.eu/modules/autoblocker.js"
+						strategy="beforeInteractive"
+					/>
+					<Script
+						id="usercentrics-cmp"
+						src="https://web.cmp.usercentrics.eu/ui/loader.js"
+						data-settings-id="gVI-vFm7-FZEgj"
+						async
+						strategy="afterInteractive"
+					/>
+				</head>
+				<body
+					className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+				>
+					<Auth0Provider>{children}</Auth0Provider>
+				</body>
+			</html>
+		</ClerkProvider>
 	)
 }
